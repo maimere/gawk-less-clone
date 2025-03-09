@@ -49,15 +49,21 @@ BEGIN {
         ARGV[1] = filename
         ARGC = 2
     }
-
+    
     # Validate file existence
-    if (system("test -f " ARGV[1]) > 0) {
+    while (system("test -f " ARGV[1]) != 0) {
         system("stty cooked echo")
         system("tput cnorm")
         system("clear")
-        set_status("Error: File '" ARGV[1] "' does not exist.")
-        system("read -n1 -r")
-        exit 1
+        set_status("Error: File '" ARGV[1] "' does not exist. Enter filename (or 'q' to quit):")
+        getline filename < "/dev/tty"
+        gsub("\033","",filename) # Removes Escape if any special key is pressed on prompt
+        if (filename == "q") {
+            system("tput cnorm")
+            system("clear")
+            exit 0
+        }
+        ARGV[1] = filename
     }
 
     # Set terminal to raw mode and hide cursor
@@ -67,14 +73,12 @@ BEGIN {
     # Initialize variables
     start_line = 1
     total_lines = 0
-    status = ""
 }
 
 BEGINFILE {
     # Start loading the file into an array
     start_line = 1
     total_lines = 0
-    status = ""
 }
 
 {
@@ -93,7 +97,7 @@ ENDFILE {
 
 function set_status(status_message) {
     system("tput cup " (height - 2) " 0")
-    printf "\033[7m%s\033[0m\r\n", status_message
+    printf "\033[7m%s\033[0m\r\n", substr(status_message, 1, width)
     printf "> "
 }
 
@@ -107,16 +111,7 @@ function display_content() {
     }
 
     # Display status line
-    update_status()
-    printf "\033[7m%s\033[0m\r\n", substr(status, 1, width)
-
-    # Move cursor to command line
-    system("tput cup " (height - 1) " 0")
-    printf "> "
-}
-
-function update_status() {
-    status = "Line " start_line "/" total_lines " (Use j/k or ↑/↓ to move, q to quit)"
+    set_status("Line " start_line "/" total_lines " (Use j/k or ↑/↓ to move, q to quit)")
 }
 
 function get_input() {
