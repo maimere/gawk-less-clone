@@ -8,7 +8,7 @@
 #
 #
 
-### Simple less clone written for GNU AWK.
+### Simple less clone written in GNU AWK.
 #
 # Call it as ./less-clone.gawk or ./less-clone.gawk <filename>
 #
@@ -25,6 +25,10 @@
 
 
 BEGIN {
+    # Setting errors to nonfatal, to allow handling with fatal errors
+    #PROCINFO["NONFATAL"] = 1
+    #ERRNO = 0
+    
     # Initialize terminal settings
     "tput lines" | getline height
     "tput cols" | getline width
@@ -34,25 +38,25 @@ BEGIN {
     if (ARGC < 2) {
         # Start the status line and command line if no argument given
         system("clear")
-        system("tput cup " (height - 2) " 0")
-        printf "\033[7m%s\033[0m\r\n", "Enter filename (or 'q' to quit):"
-        printf "> "
-        
+
+        set_status("Enter filename (or 'q' to quit):")
         getline filename < "/dev/tty"
         if (filename == "q") {
             system("tput cnorm")
             system("clear")
             exit 0
         }
+        ARGV[1] = filename
+        ARGC = 2
     }
 
     # Validate file existence
-    if (system("test -f " filename) > 0) {
+    if (system("test -f " ARGV[1]) > 0) {
         system("stty cooked echo")
         system("tput cnorm")
-        print "Error: File '" filename "' does not exist."
-        #system("clear")
-        read -n 1
+        system("clear")
+        set_status("Error: File '" ARGV[1] "' does not exist.")
+        system("read -n1 -r")
         exit 1
     }
 
@@ -68,7 +72,9 @@ BEGIN {
 
 BEGINFILE {
     # Start loading the file into an array
+    start_line = 1
     total_lines = 0
+    status = ""
 }
 
 {
@@ -83,6 +89,12 @@ ENDFILE {
         display_content()
         get_input()
     }
+}
+
+function set_status(status_message) {
+    system("tput cup " (height - 2) " 0")
+    printf "\033[7m%s\033[0m\r\n", status_message
+    printf "> "
 }
 
 function display_content() {
