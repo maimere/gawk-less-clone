@@ -4,7 +4,7 @@ This is a very simple clone of GNU `less`, written in GNU AWK programming langua
 
 Besides `gawk` 4.0+, this program relies on `tput` and `clear` from ncurses and `stty` from coreutils. 
 
-## What does it do
+## What it does
 
 - Read a file calling it as an argument: `./less-clone.gawk <filename>`
 - If no argument is given, the program will ask for the filename.
@@ -13,8 +13,10 @@ Besides `gawk` 4.0+, this program relies on `tput` and `clear` from ncurses and 
 
 ## Yet to be done
 
-- Properly handle change of status line.
-- Command option (:) is still useless. Not fully implemented.
-- Handle invalid filename
-- Simplify change of terminal properties with stty and tput. It is too hard coded now.
+- [x] Properly change the status line.
+- [ ] Command option (:) is still useless. Not fully implemented. Maybe remove it for good.
+- [x] Handle invalid filename
+- [ ] Simplify change of terminal properties with stty and tput. It is too hard coded now.
+- [ ] Handle long lines. Now they are capped by the number of columns of the terminal.
+- [ ] On function get_input: substitute if-elses for the `switch` statement.
 
