@@ -34,15 +34,26 @@ BEGIN {
     "tput cols" | getline width
     content_lines = height - 2  # Reserve 2 lines for status and command
     
+    # Set terminal to raw mode and hide cursor
+    system("stty raw -echo")
+    system("tput civis")
+    
     # Check if a file was provided via command line
     if (ARGC < 2) {
         # Start the status line and command line if no argument given
+        system("stty cooked echo")
         system("clear")
-
         set_status("Enter filename (or 'q' to quit):")
-        getline filename < "/dev/tty"
+        system("tput cnorm")
+        if ( getline filename < "/dev/tty" <= 0 ) {
+            system("clear")
+            set_status("Unexpected EOF or error. Exiting now.")
+            system("read -n1")
+            exit 1
+        }
+        gsub("\033","",filename) # Removes Escape if any special key is pressed on prompt
         if (filename == "q") {
-            system("tput cnorm")
+            system("stty cooked")
             system("clear")
             exit 0
         }
@@ -53,26 +64,27 @@ BEGIN {
     # Validate file existence
     while (system("test -f " ARGV[1]) != 0) {
         system("stty cooked echo")
-        system("tput cnorm")
         system("clear")
         set_status("Error: File '" ARGV[1] "' does not exist. Enter filename (or 'q' to quit):")
-        getline filename < "/dev/tty"
+        system("tput cnorm")
+        if ( getline filename < "/dev/tty" <= 0 ) {
+            system("clear")
+            set_status("Unexpected EOF or error. Exiting now.")
+            system("read -n1")
+            exit 1
+        }
         gsub("\033","",filename) # Removes Escape if any special key is pressed on prompt
         if (filename == "q") {
-            system("tput cnorm")
             system("clear")
             exit 0
         }
         ARGV[1] = filename
     }
-
+    
     # Set terminal to raw mode and hide cursor
     system("stty raw -echo")
     system("tput civis")
 
-    # Initialize variables
-    start_line = 1
-    total_lines = 0
 }
 
 BEGINFILE {
