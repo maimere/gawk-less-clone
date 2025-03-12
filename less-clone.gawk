@@ -61,7 +61,7 @@ BEGIN {
         ARGC = 2
     }
     
-    # Validate file existence
+    # Validate file existence ==== To be substituted by function validate_filename()
     while (system("test -f " ARGV[1]) != 0) {
         system("stty cooked echo")
         system("clear")
@@ -111,6 +111,10 @@ function set_status(status_message) {
     system("tput cup " (height - 2) " 0")
     printf "\033[7m%s\033[0m\r\n", substr(status_message, 1, width)
     printf "> "
+}
+
+function validate_filename(file) {
+    
 }
 
 function display_content() {
@@ -165,21 +169,21 @@ function get_input() {
             if (start_line < 1) start_line = 1
         }
     }
-    else if (key == ":") {  # Command mode
-        system("tput cup " (height - 1) " 2")
-        printf "                "  # Clear previous command
-        system("tput cup " (height - 1) " 2")
-        system("stty cooked echo")  # Temporarily enable line input
-        getline cmd < "/dev/tty"
-        system("stty raw -echo")    # Back to raw mode
-        if (cmd == "q") {
-            system("stty cooked echo")
-            system("tput cnorm")
-            system("clear")
-            exit 0
-        }
-        status = "Unknown command: " cmd
-    }
+#    else if (key == ":") {  # Command mode
+#        system("tput cup " (height - 1) " 2")
+#        printf "                "  # Clear previous command
+#        system("tput cup " (height - 1) " 2")
+#        system("stty cooked echo")  # Temporarily enable line input
+#        getline cmd < "/dev/tty"
+#        system("stty raw -echo")    # Back to raw mode
+#        if (cmd == "q") {
+#            system("stty cooked echo")
+#            system("tput cnorm")
+#            system("clear")
+#            exit 0
+#        }
+#        status = "Unknown command: " cmd
+#    }
 }
 
 END {

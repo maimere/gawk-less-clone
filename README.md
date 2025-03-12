@@ -8,7 +8,8 @@ Besides `gawk` 4.0+, this program relies on `tput` and `clear` from ncurses and 
 
 - Read a file calling it as an argument: `./less-clone.gawk <filename>`
 - If no argument is given, the program will ask for the filename.
-- Use `j`/`k`/up and down arrows to browse through the file.
+- `j`/`k`/up and down arrows to scrol one line up or down.
+- `b`/`f` to scroll one page up or down.
 - `q` to quit.
 
 ## Yet to be done
