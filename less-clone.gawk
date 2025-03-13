@@ -88,15 +88,18 @@ BEGIN {
 }
 
 BEGINFILE {
-    # Start loading the file into an array
+    # New file reset routine
     start_line = 1
     total_lines = 0
+    start_col = 1
+    max_col = 0
 }
 
 {
     # Store each line in an array
     total_lines++
     lines[total_lines] = $0
+    if (length($0) > max_col) max_col = length($0)
 }
 
 ENDFILE {
@@ -123,11 +126,11 @@ function display_content() {
 
     # Display content
     for (i = start_line; i < start_line + content_lines && i <= total_lines; i++) {
-        printf "%s\r\n", substr(lines[i], 1, width)
+        printf "%-*s\r\n", width, substr(lines[i], start_col, width)
     }
 
     # Display status line
-    set_status("Line " start_line "/" total_lines " (Use j/k or ↑/↓ to move, q to quit)")
+    set_status("Line " start_line "/" total_lines ". Column " start_col "/" max_col ". (Use h/j/k/l or ←/↓/↑/→ to scroll, b/f to scroll a page, q to quit)")
 }
 
 function get_input() {
@@ -137,11 +140,13 @@ function get_input() {
     close(cmd)
 
     if (key == "\033") {  # Down or potential arrow key
-        cmd = "dd bs=1 count=2 < /dev/tty 2>/dev/null"
+        cmd = "dd bs=1 count=2 < /dev/tty 2>/dev/null" # Grab 2 more bytes from the tty
         cmd | getline extra
         close(cmd)
         if (extra == "[B") key = "j"  # Down arrow
         else if (extra == "[A") key = "k"  # Up arrow
+        else if (extra == "[C") key = "l" # Right arrow
+        else if (extra == "[D") key = "h" # Left arrow
     }
     if (key == "q") {# - 
         system("stty cooked echo")
@@ -154,6 +159,16 @@ function get_input() {
     }
     else if (key == "k" && start_line > 1) {
         start_line--
+    }
+    else if (key == "l") {
+        max_screen_col = 0
+        for(i = start_line; i <= start_line + height - 2; i++) {
+            if (length(lines[i]) > max_screen_col) max_screen_col = length(lines[i])
+        }
+        if (start_col < max_screen_col) start_col += 1 # Won't scroll right past the largest line on screen
+    }
+    else if (key == "h") {
+        if (start_col > 1) start_col -= 1  # Scroll left, but not below 1
     }
     else if (key == "f") {  # Page down
         if (start_line + content_lines <= total_lines) {
@@ -169,7 +184,7 @@ function get_input() {
             if (start_line < 1) start_line = 1
         }
     }
-#    else if (key == ":") {  # Command mode
+#    else if (key == ":") {  # Command mode, on halt for now
 #        system("tput cup " (height - 1) " 2")
 #        printf "                "  # Clear previous command
 #        system("tput cup " (height - 1) " 2")
