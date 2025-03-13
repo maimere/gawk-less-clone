@@ -2,7 +2,11 @@
 
 This is a very simple clone of GNU `less`, written in GNU AWK programming language.
 
-Besides `gawk` 4.0+, this program relies on `tput` and `clear` from ncurses and `stty` from coreutils. 
+### Dependencies
+
+- GNU AWK 4.0+
+- ncurses
+- coreutils
 
 ## What it does
 
