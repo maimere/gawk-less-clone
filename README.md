@@ -8,7 +8,7 @@ Besides `gawk` 4.0+, this program relies on `tput` and `clear` from ncurses and 
 
 - Read a file calling it as an argument: `./less-clone.gawk <filename>`
 - If no argument is given, the program will ask for the filename.
-- `j`/`k`/up and down arrows to scrol one line up or down.
+- `h`/`j`/`k`/`l` and arrow keys to scroll on every direction.
 - `b`/`f` to scroll one page up or down.
 - `q` to quit.
 
@@ -18,6 +18,6 @@ Besides `gawk` 4.0+, this program relies on `tput` and `clear` from ncurses and 
 - [ ] Command option (:) is still useless. Not fully implemented. Maybe remove it for good.
 - [x] Handle invalid filename
 - [ ] Simplify change of terminal properties with stty and tput. It is too hard coded now.
-- [ ] Handle long lines. Now they are capped by the number of columns of the terminal.
+- [x] Handle long lines. Now they are capped by the number of columns of the terminal.
 - [ ] On function get_input: substitute if-elses for the `switch` statement.
 

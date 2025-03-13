@@ -12,9 +12,10 @@
 #
 # Call it as ./less-clone.gawk or ./less-clone.gawk <filename>
 #
-#      Command                What it does
-#   j/k/arrow keys      Move up and down the file.
-#         q                       Quit
+#       Command                   What it does
+#   h/j/k/l/arrow keys      Scroll in all directions
+#         b/f                  Scroll a whole page
+#          q                          Quit
 
 
 # TODO
