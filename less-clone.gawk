@@ -8,22 +8,6 @@
 #
 #
 
-### Simple less clone written in GNU AWK.
-#
-# Call it as ./less-clone.gawk or ./less-clone.gawk <filename>
-#
-#       Command                   What it does
-#   h/j/k/l/arrow keys      Scroll in all directions
-#         b/f                  Scroll a whole page
-#          q                          Quit
-
-
-# TODO
-# - Properly handle change of status line.
-# - Command option (:) is still useless. Not fully implemented.
-# - Handle invalid filename
-# - Simplify change of terminal properties with stty and tput. It is too hard coded now.
-
 
 BEGIN {
     # Setting errors to nonfatal, to allow handling with fatal errors
@@ -124,7 +108,7 @@ function validate_filename(file) {
 function display_content() {
     # Clear screen
     system("clear")
-
+        
     # Display content
     for (i = start_line; i < start_line + content_lines && i <= total_lines; i++) {
         printf "%-*s\r\n", width, substr(lines[i], start_col, width)
@@ -149,57 +133,50 @@ function get_input() {
         else if (extra == "[C") key = "l" # Right arrow
         else if (extra == "[D") key = "h" # Left arrow
     }
-    if (key == "q") {# - 
-        system("stty cooked echo")
-        system("tput cnorm")
-        system("clear")
-        exit 0
-    }
-    else if (key == "j" && start_line + content_lines <= total_lines) {
-        start_line++
-    }
-    else if (key == "k" && start_line > 1) {
-        start_line--
-    }
-    else if (key == "l") {
-        max_screen_col = 0
-        for(i = start_line; i <= start_line + height - 2; i++) {
-            if (length(lines[i]) > max_screen_col) max_screen_col = length(lines[i])
+    switch (key) {
+        case "q" {
+            system("stty cooked echo")
+            system("tput cnorm")
+            system("clear")
+            exit 0
         }
-        if (start_col < max_screen_col) start_col += 1 # Won't scroll right past the largest line on screen
-    }
-    else if (key == "h") {
-        if (start_col > 1) start_col -= 1  # Scroll left, but not below 1
-    }
-    else if (key == "f") {  # Page down
-        if (start_line + content_lines <= total_lines) {
-            start_line += content_lines
-            if (start_line + content_lines > total_lines) {
-                start_line = total_lines - content_lines + 1
+        case "j" {
+            if (start_line + content_lines <= total_lines) start_line++
+            break
+        }
+        case "k" {
+            if (start_line > 1) start_line--
+            break
+        }
+        case "l" {
+            max_screen_col = 0
+            for(i = start_line; i <= start_line + height - 2; i++) {
+                if (length(lines[i]) > max_screen_col) max_screen_col = length(lines[i])
             }
+            if (start_col < max_screen_col) start_col += 1 # Won't scroll right past the largest line on screen
+            break
+        }
+        case "h" {
+            if (start_col > 1) start_col -= 1  # Scroll left, but not below 1
+            break
+        }
+        case "f" {  # Page down
+            if (start_line + content_lines <= total_lines) {
+                start_line += content_lines
+                if (start_line + content_lines > total_lines) {
+                    start_line = total_lines - content_lines + 1
+                }
+            }
+            break
+        }
+        case "b" {  # Page up
+            if (start_line > 1) {
+                start_line -= content_lines
+                if (start_line < 1) start_line = 1
+            }
+            break
         }
     }
-    else if (key == "b") {  # Page up
-        if (start_line > 1) {
-            start_line -= content_lines
-            if (start_line < 1) start_line = 1
-        }
-    }
-#    else if (key == ":") {  # Command mode, on halt for now
-#        system("tput cup " (height - 1) " 2")
-#        printf "                "  # Clear previous command
-#        system("tput cup " (height - 1) " 2")
-#        system("stty cooked echo")  # Temporarily enable line input
-#        getline cmd < "/dev/tty"
-#        system("stty raw -echo")    # Back to raw mode
-#        if (cmd == "q") {
-#            system("stty cooked echo")
-#            system("tput cnorm")
-#            system("clear")
-#            exit 0
-#        }
-#        status = "Unknown command: " cmd
-#    }
 }
 
 END {
