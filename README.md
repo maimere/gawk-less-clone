@@ -19,9 +19,13 @@ This is a very simple clone of GNU `less`, written in GNU AWK programming langua
 ## Yet to be done
 
 - [x] Properly change the status line.
-- [ ] Command option (:) is still useless. Not fully implemented. Maybe remove it for good.
+- [x] Command option (:) is still useless. Not fully implemented. Maybe remove it for good. [removed]
 - [x] Handle invalid filename
 - [ ] Simplify change of terminal properties with stty and tput. It is too hard coded now.
-- [x] Handle long lines. Now they are capped by the number of columns of the terminal.
-- [ ] On function get_input: substitute if-elses for the `switch` statement.
+- [x] Handle long lines. Now they are capped by the number of columns of the terminal. [added horizontal scrolling]
+- [x] On function get_input: substitute if-elses for the `switch` statement.
+- [ ] Add functions to treat redundant parts.
+- [ ] Handle large lines by wrapping, which is the default `less` behaviour.
+- [ ] Add command to open another file.
+- [ ] Add help command, focusing on a lean status line.
 
