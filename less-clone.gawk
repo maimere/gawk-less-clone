@@ -134,33 +134,28 @@ function get_input() {
         else if (extra == "[D") key = "h" # Left arrow
     }
     switch (key) {
-        case "q" {
+        case "q":
             system("stty cooked echo")
             system("tput cnorm")
             system("clear")
             exit 0
-        }
-        case "j" {
+        case "j":
             if (start_line + content_lines <= total_lines) start_line++
             break
-        }
-        case "k" {
+        case "k":
             if (start_line > 1) start_line--
             break
-        }
-        case "l" {
+        case "l":
             max_screen_col = 0
             for(i = start_line; i <= start_line + height - 2; i++) {
                 if (length(lines[i]) > max_screen_col) max_screen_col = length(lines[i])
             }
             if (start_col < max_screen_col) start_col += 1 # Won't scroll right past the largest line on screen
             break
-        }
-        case "h" {
+        case "h":
             if (start_col > 1) start_col -= 1  # Scroll left, but not below 1
             break
-        }
-        case "f" {  # Page down
+        case "f":  # Page down
             if (start_line + content_lines <= total_lines) {
                 start_line += content_lines
                 if (start_line + content_lines > total_lines) {
@@ -168,14 +163,12 @@ function get_input() {
                 }
             }
             break
-        }
-        case "b" {  # Page up
+        case "b":  # Page up
             if (start_line > 1) {
                 start_line -= content_lines
                 if (start_line < 1) start_line = 1
             }
             break
-        }
     }
 }
 
