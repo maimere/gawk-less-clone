@@ -21,7 +21,7 @@ This is a very simple clone of GNU `less`, written in GNU AWK programming langua
 - [x] Properly change the status line.
 - [x] Command option (:) is still useless. Not fully implemented. Maybe remove it for good. [removed]
 - [x] Handle invalid filename
-- [ ] Simplify change of terminal properties with stty and tput. It is too hard coded now.
+- [x] Simplify change of terminal properties with stty and tput. It is too hard coded now.
 - [x] Handle long lines. Now they are capped by the number of columns of the terminal. [added horizontal scrolling]
 - [x] On function get_input: substitute if-elses for the `switch` statement.
 - [ ] Add functions to treat redundant parts.
