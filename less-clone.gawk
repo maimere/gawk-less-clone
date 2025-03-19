@@ -5,41 +5,35 @@
 # This program is licensed under the Do What The Fuck You Want To Public License (WTFPL), Version 2.
 # You just DO WHAT THE FUCK YOU WANT TO.
 # See the LICENSE file or http://www.wtfpl.net/ for more details.
-#
-#
 
 
 BEGIN {
-    # Setting errors to nonfatal, to allow handling with fatal errors
-    #PROCINFO["NONFATAL"] = 1
-    #ERRNO = 0
-    
     # Initialize terminal settings
     "tput lines" | getline height
     "tput cols" | getline width
     content_lines = height - 2  # Reserve 2 lines for status and command
     
-    # Set terminal to raw mode and hide cursor
-    system("stty raw -echo")
-    system("tput civis")
+    stty_config("save")
     
+    raw_and_hide()
+
     # Check if a file was provided via command line
     if (ARGC < 2) {
         # Start the status line and command line if no argument given
-        system("stty cooked echo")
         system("clear")
+        cooked_and_show()
         set_status("Enter filename (or 'q' to quit):")
-        system("tput cnorm")
         if ( getline filename < "/dev/tty" <= 0 ) {
             system("clear")
             set_status("Unexpected EOF or error. Exiting now.")
             system("read -n1")
+            stty_config("restore")
             exit 1
         }
         gsub("\033","",filename) # Removes Escape if any special key is pressed on prompt
         if (filename == "q") {
-            system("stty cooked")
             system("clear")
+            stty_config("restore")
             exit 0
         }
         ARGV[1] = filename
@@ -48,27 +42,26 @@ BEGIN {
     
     # Validate file existence ==== To be substituted by function validate_filename()
     while (system("test -f " ARGV[1]) != 0) {
-        system("stty cooked echo")
         system("clear")
+        cooked_and_show()
         set_status("Error: File '" ARGV[1] "' does not exist. Enter filename (or 'q' to quit):")
-        system("tput cnorm")
         if ( getline filename < "/dev/tty" <= 0 ) {
             system("clear")
-            set_status("Unexpected EOF or error. Exiting now.")
+            set_status("Unexpected EOF or error. Press any key to exit.")
             system("read -n1")
+            stty_config("restore")
             exit 1
         }
         gsub("\033","",filename) # Removes Escape if any special key is pressed on prompt
         if (filename == "q") {
             system("clear")
+            stty_config("restore")
             exit 0
         }
         ARGV[1] = filename
     }
     
-    # Set terminal to raw mode and hide cursor
-    system("stty raw -echo")
-    system("tput civis")
+    raw_and_hide()
 
 }
 
@@ -95,6 +88,33 @@ ENDFILE {
     }
 }
 
+END {
+    # Restore terminal settings on exit
+    stty_config("restore")
+    system("clear")
+}
+
+function stty_config(action) {
+    # Saves and restores original stty settings
+    if (action == "save") system("stty -g") > ENVIRON["HOME"]"/tmp/sttyconfig"
+    else if (action == "restore") {
+        system("stty "ENVIRON["HOME"]"/tmp/sttyconfig")
+        system("tput cnorm")
+    }
+}
+
+function raw_and_hide() {
+    # Set terminal to raw mode and hide cursor
+    system("stty raw -echo")
+    system("tput civis")
+}
+
+function cooked_and_show() {
+    # Set terminal to cooked mode and show cursor
+    system("stty cooked echo")
+    system("tput cnorm")
+}
+
 function set_status(status_message) {
     system("tput cup " (height - 2) " 0")
     printf "\033[7m%s\033[0m\r\n", substr(status_message, 1, width)
@@ -102,7 +122,7 @@ function set_status(status_message) {
 }
 
 function validate_filename(file) {
-    
+    # SOON
 }
 
 function display_content() {
@@ -172,9 +192,4 @@ function get_input() {
     }
 }
 
-END {
-    # Restore terminal settings on exit
-    system("stty cooked echo")
-    system("tput cnorm")
-    system("clear")
-}
+
